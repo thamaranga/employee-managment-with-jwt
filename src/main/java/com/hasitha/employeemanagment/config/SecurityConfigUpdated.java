@@ -16,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -29,9 +28,6 @@ public class SecurityConfigUpdated {
 
     @Autowired
     private JWTAuthFilter jwtAuthFilter;
-
-    @Autowired
-    private AuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     /*This password encorder will encrypt/decrypt passwords for us*/
     @Bean
@@ -50,7 +46,7 @@ public class SecurityConfigUpdated {
 
 
 
-    /*Enable traffic for /employee_jwt/welcome , /employee_jwt/create , /employee_jwt/authenticate url endpoint without doing any user authentication.
+    /*Enable traffic for /employee_jwt/welcome , /employee_jwt/create , /employee_jwt/authenticate , /employee_jwt/generateNewAccessTokenUsingRefreshToken url endpoint without doing any user authentication.
     For all other url endpoints which starts with /employee_jwt  authenticate the user */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -58,11 +54,10 @@ public class SecurityConfigUpdated {
 
         return http.csrf().disable().
                 authorizeRequests().
-                antMatchers("/employee_jwt/welcome", "/employee_jwt/create", "/employee_jwt/authenticate").permitAll()
+                antMatchers("/employee_jwt/welcome", "/employee_jwt/create", "/employee_jwt/authenticate" , "/employee_jwt/generateNewAccessTokenUsingRefreshToken").permitAll()
                 .and()
                 .authorizeRequests().antMatchers("/employee_jwt/*")
                 .authenticated().and().
-                exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().
                 sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).
                 and().authenticationProvider(authenticationProvider()).
                 //Before using UsernamePasswordAuthenticationFilter pls use our filter (jwtAuthFilter)

@@ -1,10 +1,12 @@
 package com.hasitha.employeemanagment.service;
 
+import com.hasitha.employeemanagment.dto.TokenResponseDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -17,18 +19,32 @@ import java.util.function.Function;
 @Service
 public class JWTService {
 
-    public String generateToken(String userName){
+    public TokenResponseDTO generateToken(Authentication authentication){
+        TokenResponseDTO tokenResponseDTO= new TokenResponseDTO();
+        EmployeeUserDetails user= (EmployeeUserDetails) authentication.getPrincipal();
         Map<String , Object> claims= new HashMap<>();
-        return createToken(claims, userName);
+        claims.put("roles",user.getAuthorities());
+        tokenResponseDTO.setAccessToken(createAccessToken(claims, user.getUsername()));
+        tokenResponseDTO.setRefreshToken(createRefreshToken(claims, user.getUsername()));
+        return tokenResponseDTO;
 
     }
 
-    private String createToken(Map<String, Object> claims, String userName) {
+    public String createAccessToken(Map<String, Object> claims, String userName) {
         return Jwts.builder().
                 setClaims(claims)
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*5)).
+                signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+    }
+
+    /*While generating the refresh token, claims no need to set */
+    private String createRefreshToken(Map<String, Object> claims, String userName) {
+        return Jwts.builder()
+                .setSubject(userName)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*30)).
                 signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
