@@ -20,7 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/*This filter will execute for all the requests of the application*/
+/*This filter will execute for all the requests of the application
+* Basically this authenticates user for further req with access token*/
 @Component
 public class JWTAuthFilter extends OncePerRequestFilter {
 
@@ -41,6 +42,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                 //Extracts jwt token
                 token = authHeader.substring(7);
                 username = jwtService.extractUsername(token);
+                //SecurityContextHolder.getContext().getAuthentication() == null means current username is not authenticated
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = employeeUserDetailsService.loadUserByUsername(username);
                     if (jwtService.validateToken(token, userDetails)) {

@@ -40,3 +40,5 @@ For testing purpose I can use below user credentials.
 "password":"121212"
 
 }
+
+In real time applications we can set validity of access token like 15 minutes and refresh token for 1 day.

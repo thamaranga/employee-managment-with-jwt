@@ -25,7 +25,7 @@ public class JWTService {
         Map<String , Object> claims= new HashMap<>();
         claims.put("roles",user.getAuthorities());
         tokenResponseDTO.setAccessToken(createAccessToken(claims, user.getUsername()));
-        tokenResponseDTO.setRefreshToken(createRefreshToken(claims, user.getUsername()));
+        tokenResponseDTO.setRefreshToken(createRefreshToken( user.getUsername()));
         return tokenResponseDTO;
 
     }
@@ -40,7 +40,7 @@ public class JWTService {
     }
 
     /*While generating the refresh token, claims no need to set */
-    private String createRefreshToken(Map<String, Object> claims, String userName) {
+    private String createRefreshToken( String userName) {
         return Jwts.builder()
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -55,6 +55,7 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    //extract username from JWT
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);
     }
@@ -83,6 +84,8 @@ public class JWTService {
         return claimsResolver.apply(claims);
     }
 
+    //Claims means all the key value pairs inside JWT  payload.(JWT token has three fields as
+    // header, payload and verify signature)
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()

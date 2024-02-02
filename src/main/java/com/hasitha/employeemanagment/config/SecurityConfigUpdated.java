@@ -60,16 +60,18 @@ public class SecurityConfigUpdated {
                 .authenticated().and().
                 sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).
                 and().authenticationProvider(authenticationProvider()).
-                //Before using UsernamePasswordAuthenticationFilter pls use our filter (jwtAuthFilter)
+
                         addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 
     @Bean
+    /*Authentication is done by this*/
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
+    /*Actual authentication is done by this authentication provider*/
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService());
